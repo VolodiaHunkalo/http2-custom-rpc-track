@@ -32,6 +32,8 @@ enum StreamState {
   Terminated,
 }
 
+
+
 /// Represents a HTTP/2 stream.
 class Http2StreamImpl extends TransportStream
     implements ClientTransportStream, ServerTransportStream {
@@ -70,6 +72,7 @@ class Http2StreamImpl extends TransportStream
   final ZoneUnaryCallback<dynamic, Http2StreamImpl> _terminateStreamFun;
 
   late StreamSubscription _outgoingCSubscription;
+
 
   Http2StreamImpl(
       this.incomingQueue,
@@ -154,6 +157,8 @@ class StreamHandler extends Object with TerminatableMixin, ClosableMixin {
 
   bool get ranOutOfStreamIds => _ranOutOfStreamIds();
 
+
+
   /// Whether it is possible to open a new stream to the remote end (e.g. based
   /// on whether we have reached the limit of maximum concurrent open streams).
   bool get canOpenStream => _canCreateNewStream();
@@ -197,6 +202,11 @@ class StreamHandler extends Object with TerminatableMixin, ClosableMixin {
     _openStreams.values.toList().forEach((stream) =>
         _closeStreamAbnormally(stream, error, propagateException: true));
     startClosing();
+  }
+
+  StreamState? getStreamState(int streamId) {
+    var stream = _openStreams[streamId];
+    return stream?.state;
   }
 
   void forceDispatchIncomingMessages() {

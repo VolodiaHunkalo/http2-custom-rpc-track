@@ -5,6 +5,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:http2/src/streams/stream_handler.dart';
+
 import 'src/connection.dart';
 import 'src/hpack/hpack.dart' show Header;
 
@@ -12,6 +14,20 @@ export 'src/frames/frames.dart' show ErrorCode;
 export 'src/hpack/hpack.dart' show Header;
 
 typedef ActiveStateHandler = void Function(bool isActive);
+
+
+class RpcCallIntercept{
+  void checkStreamState(StreamHandler handler, int streamId) {
+    var state = handler.getStreamState(streamId);
+    if (state != null) {
+      print('The state of stream $streamId is $state.');
+    } else {
+      print('Stream $streamId does not exist.');
+    }
+  }
+}
+
+
 
 /// Settings for a [TransportConnection].
 abstract class Settings {
