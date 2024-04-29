@@ -5,6 +5,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:logger/logger.dart';
+
 import '../../transport.dart';
 import '../connection.dart';
 import '../error_handler.dart';
@@ -134,6 +136,9 @@ class Http2StreamImpl extends TransportStream
 class StreamHandler extends Object with TerminatableMixin, ClosableMixin {
   static const int MAX_STREAM_ID = (1 << 31) - 1;
 
+  Logger logger = Logger();
+
+
   final FrameWriter _frameWriter;
   final ConnectionMessageQueueIn incomingQueue;
   final ConnectionMessageQueueOut outgoingQueue;
@@ -164,6 +169,7 @@ class StreamHandler extends Object with TerminatableMixin, ClosableMixin {
   bool get canOpenStream => _canCreateNewStream();
 
   final ActiveStateHandler _onActiveStateChanged;
+
 
   StreamHandler._(
       this._frameWriter,
@@ -204,10 +210,7 @@ class StreamHandler extends Object with TerminatableMixin, ClosableMixin {
     startClosing();
   }
 
-  StreamState? getStreamState(int streamId) {
-    var stream = _openStreams[streamId];
-    return stream?.state;
-  }
+
 
   void forceDispatchIncomingMessages() {
     _openStreams.forEach((int streamId, Http2StreamImpl stream) {
@@ -218,6 +221,8 @@ class StreamHandler extends Object with TerminatableMixin, ClosableMixin {
   Stream<TransportStream> get incomingStreams => _newStreamsC.stream;
 
   List<TransportStream> get openStreams => _openStreams.values.toList();
+
+
 
   void processInitialWindowSizeSettingChange(int difference) {
     // If the initialFlowWindow size was changed via a SettingsFrame, all
@@ -839,7 +844,7 @@ class StreamHandler extends Object with TerminatableMixin, ClosableMixin {
 
   void _changeState(Http2StreamImpl stream, StreamState to) {
     var from = stream.state;
-
+    logger.t(stream.state.name);
     // In checked mode we'll test that the state transition is allowed.
     assert((from == StreamState.Idle && to == StreamState.ReservedLocal) ||
         (from == StreamState.Idle && to == StreamState.ReservedRemote) ||
@@ -885,6 +890,7 @@ class StreamHandler extends Object with TerminatableMixin, ClosableMixin {
           // There is nothing to do here.
           break;
       }
+
     }
     stream.state = to;
   }
