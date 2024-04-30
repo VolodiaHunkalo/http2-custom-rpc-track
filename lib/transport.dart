@@ -14,6 +14,9 @@ export 'src/hpack/hpack.dart' show Header;
 
 typedef ActiveStateHandler = void Function(bool isActive);
 
+
+
+
 /// Settings for a [TransportConnection].
 abstract class Settings {
   /// The maximum number of concurrent streams the remote end can open
