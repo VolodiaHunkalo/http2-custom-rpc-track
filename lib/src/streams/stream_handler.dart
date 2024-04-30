@@ -36,6 +36,17 @@ enum StreamState {
 
 
 
+class StreamStateEvent {
+  final int streamId;
+  final StreamState state;
+
+  StreamStateEvent(this.streamId, this.state);
+}
+
+final StreamController<StreamStateEvent> globalStateController = StreamController<StreamStateEvent>.broadcast();
+
+
+
 /// Represents a HTTP/2 stream.
 class Http2StreamImpl extends TransportStream
     implements ClientTransportStream, ServerTransportStream {
@@ -60,6 +71,17 @@ class Http2StreamImpl extends TransportStream
 
   // The state of this stream.
   StreamState state = StreamState.Idle;
+
+  StreamState _state = StreamState.Idle; // Private field for state
+
+  StreamState get newState => _state;
+
+  set newState(StreamState newState) {
+    if (_state != newState) {
+      _state = newState;
+      globalStateController.add(StreamStateEvent(id, _state));
+    }
+  }
 
   // Error code from RST_STREAM frame, if the stream has been terminated
   // remotely.
@@ -120,7 +142,8 @@ class Http2StreamImpl extends TransportStream
     }
   }
 
-  void _handleTerminated(int errorCode) {
+
+void _handleTerminated(int errorCode) {
     _terminatedErrorCode = errorCode;
     if (_onTerminated != null) {
       _onTerminated!(_terminatedErrorCode!);

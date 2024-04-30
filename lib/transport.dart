@@ -5,9 +5,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:http2/src/streams/stream_handler.dart';
-
 import 'multiprotocol_server.dart';
+import 'package:http2/src/streams/stream_handler.dart';
 import 'src/connection.dart';
 import 'src/hpack/hpack.dart' show Header;
 
@@ -17,6 +16,13 @@ export 'src/hpack/hpack.dart' show Header;
 typedef ActiveStateHandler = void Function(bool isActive);
 
 
+class StreamListening{
+  void listenToStreamState(){
+    globalStateController.stream.listen((event) {
+      print(event.state.name);
+    });
+  }
+}
 
 /// Settings for a [TransportConnection].
 abstract class Settings {
