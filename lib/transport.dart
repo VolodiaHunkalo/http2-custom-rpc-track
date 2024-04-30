@@ -5,24 +5,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'multiprotocol_server.dart';
-import 'package:http2/src/streams/stream_handler.dart';
 import 'src/connection.dart';
 import 'src/hpack/hpack.dart' show Header;
+import 'src/streams/stream_handler.dart';
 
 export 'src/frames/frames.dart' show ErrorCode;
 export 'src/hpack/hpack.dart' show Header;
 
 typedef ActiveStateHandler = void Function(bool isActive);
-
-
-class StreamListening{
-  void listenToStreamState(){
-    globalStateController.stream.listen((event) {
-      print(event.state.name);
-    });
-  }
-}
 
 /// Settings for a [TransportConnection].
 abstract class Settings {
@@ -138,6 +128,8 @@ abstract class TransportStream {
   /// A stream of data and/or headers from the remote end.
   Stream<StreamMessage> get incomingMessages;
 
+  StreamState get streamState;
+
   /// A sink for writing data and/or headers to the remote end.
   StreamSink<StreamMessage> get outgoingMessages;
 
@@ -166,6 +158,7 @@ abstract class TransportStream {
     outgoingMessages.add(DataStreamMessage(bytes, endStream: endStream));
     if (endStream) outgoingMessages.close();
   }
+
 }
 
 abstract class ClientTransportStream extends TransportStream {
@@ -253,3 +246,4 @@ class TransportConnectionException extends TransportException {
 class StreamTransportException extends TransportException {
   StreamTransportException(String details) : super('Stream error: $details');
 }
+

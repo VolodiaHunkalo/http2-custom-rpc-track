@@ -72,17 +72,6 @@ class Http2StreamImpl extends TransportStream
   // The state of this stream.
   StreamState state = StreamState.Idle;
 
-  StreamState _state = StreamState.Idle; // Private field for state
-
-  StreamState get newState => _state;
-
-  set newState(StreamState newState) {
-    if (_state != newState) {
-      _state = newState;
-      globalStateController.add(StreamStateEvent(id, _state));
-    }
-  }
-
   // Error code from RST_STREAM frame, if the stream has been terminated
   // remotely.
   int? _terminatedErrorCode;
@@ -149,6 +138,10 @@ void _handleTerminated(int errorCode) {
       _onTerminated!(_terminatedErrorCode!);
     }
   }
+
+  @override
+  // TODO: implement streamState
+  StreamState get streamState => state;
 }
 
 /// Handles [Frame]s with a non-zero stream-id.
